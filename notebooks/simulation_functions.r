@@ -16,18 +16,11 @@ suppressPackageStartupMessages({
     
     library(liana, quietly = T)
     library(tibble, quietly = T)
-    c2c <- reticulate::import(module = "cell2cell", as="c2c")
+#     c2c <- reticulate::import(module = "cell2cell", as="c2c")
     
     library(ggplot2, quietly = T)
 
 })
-
-seed <- 888
-set.seed(seed)
-n.cores <- 20
-
-env.name<-'ccc_protocols'
-data.path<-'/data3/hratch/ccc_protocols/'
 
 # generate a scale-free, undirected, bipartite PPI network
 # emulate from c2c_sim (https://github.com/hmbaghdassarian/c2c_sim) based on Simulate.LR_network method
@@ -107,20 +100,8 @@ split.by.context<-function(sim, context_lab = 'Batch'){
     return(sim.bc)
 }
 
-score.communication.sce<-function(sce, lr.ppi, 
-                                  seed = 888, pos = T, n.cores = 15, expr_prop = 0.1, assay_type = 'logcounts'){
-    communication.scores<-liana_wrap(sce = sce, 
-                                       method = c('natmi', 'sca'), 
-                                       idents_col = 'Group', 
-                                       assay.type = assay_type,
-                                       expr_prop = expr_prop, # liana default
-                                       seed = seed,
-                                       parallelize = T, 
-                                       workers = n.cores, 
-                                       permutation.params = list(nperms = 1), # since we don't use p-values
-                                       resource = 'custom',
-                                       external_resource = lr.ppi
-                                      )
+score.communication.sce<-function(sce, check_pos = T, ...){
+    communication.scores<-liana_wrap(sce = sce, ...)
 
     # filter for columns of interest and format
     communication.scores[['natmi']] <- communication.scores$natmi[,c('source', 'target', 'ligand', 'receptor', 'prod_weight')]
@@ -129,7 +110,7 @@ score.communication.sce<-function(sce, lr.ppi,
     colnames(communication.scores$natmi) <- c('source', 'target', 'ligand', 'receptor', 'score')
     colnames(communication.scores$sca) <- c('source', 'target', 'ligand', 'receptor', 'score')
     
-    if (pos){
+    if (check_pos){
         if (min(communication.scores$natmi$score) < 0){stop('Unexpected negative score')}
         if (min(communication.scores$sca$score) < 0){stop('Unexpected negative score')}
         }
@@ -138,7 +119,7 @@ score.communication.sce<-function(sce, lr.ppi,
 }
 
 # ... into score.communication.sce
-score.communication<-function(sim.list, lr.ppi, do.contexts=NULL, ...){
+score.communication<-function(sim.list, do.contexts=NULL, ...){
     if (!is.null(do.contexts)){
         sim.list <- sim.list[do.contexts]
     }
@@ -146,7 +127,7 @@ score.communication<-function(sim.list, lr.ppi, do.contexts=NULL, ...){
     #### score communication
     suppressMessages({
         suppressWarnings({
-            score.list<-lapply(sim.list, FUN = function(sce) score.communication.sce(sce = sce, lr.ppi = lr.ppi, ...))
+            score.list<-lapply(sim.list, FUN = function(sce) score.communication.sce(sce = sce, ...))
             names(score.list)<-names(sim.list)
         })
     })
