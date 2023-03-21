@@ -100,46 +100,46 @@ split.by.context<-function(sim, context_lab = 'Batch'){
     return(sim.bc)
 }
 
-score.communication.sce<-function(sce, check_pos = T, ...){
-    communication.scores<-liana_wrap(sce = sce, ...)
+# score.communication.sce<-function(sce, check_pos = T, ...){
+#     communication.scores<-liana_wrap(sce = sce, ...)
 
-    # filter for columns of interest and format
-    communication.scores[['natmi']] <- communication.scores$natmi[,c('source', 'target', 'ligand', 'receptor', 'prod_weight')]
-    communication.scores[['sca']] <- communication.scores$sca[,c('source', 'target', 'ligand', 'receptor', 'LRscore')]
+#     # filter for columns of interest and format
+#     communication.scores[['natmi']] <- communication.scores$natmi[,c('source', 'target', 'ligand', 'receptor', 'prod_weight')]
+#     communication.scores[['sca']] <- communication.scores$sca[,c('source', 'target', 'ligand', 'receptor', 'LRscore')]
 
-    colnames(communication.scores$natmi) <- c('source', 'target', 'ligand', 'receptor', 'score')
-    colnames(communication.scores$sca) <- c('source', 'target', 'ligand', 'receptor', 'score')
+#     colnames(communication.scores$natmi) <- c('source', 'target', 'ligand', 'receptor', 'score')
+#     colnames(communication.scores$sca) <- c('source', 'target', 'ligand', 'receptor', 'score')
     
-    if (check_pos){
-        if (min(communication.scores$natmi$score) < 0){stop('Unexpected negative score')}
-        if (min(communication.scores$sca$score) < 0){stop('Unexpected negative score')}
-        }
+#     if (check_pos){
+#         if (min(communication.scores$natmi$score) < 0){stop('Unexpected negative score')}
+#         if (min(communication.scores$sca$score) < 0){stop('Unexpected negative score')}
+#         }
     
-    return(communication.scores)
-}
+#     return(communication.scores)
+# }
 
 # ... into score.communication.sce
-score.communication<-function(sim.list, do.contexts=NULL, ...){
-    if (!is.null(do.contexts)){
-        sim.list <- sim.list[do.contexts]
-    }
+# score.communication<-function(sim.list, do.contexts=NULL, ...){
+#     if (!is.null(do.contexts)){
+#         sim.list <- sim.list[do.contexts]
+#     }
     
-    #### score communication
-    suppressMessages({
-        suppressWarnings({
-            score.list<-lapply(sim.list, FUN = function(sce) score.communication.sce(sce = sce, ...))
-            names(score.list)<-names(sim.list)
-        })
-    })
+#     #### score communication
+#     suppressMessages({
+#         suppressWarnings({
+#             score.list<-lapply(sim.list, FUN = function(sce) score.communication.sce(sce = sce, ...))
+#             names(score.list)<-names(sim.list)
+#         })
+#     })
         
-    # separate into the two scoring methods
-    natmi.scores<-list()
-    sca.scores<-list()
-    for (context in names(sim.list)){
-        natmi.scores[[context]]<-score.list[[context]]$natmi
-        sca.scores[[context]]<-score.list[[context]]$sca
-    }
+#     # separate into the two scoring methods
+#     natmi.scores<-list()
+#     sca.scores<-list()
+#     for (context in names(sim.list)){
+#         natmi.scores[[context]]<-score.list[[context]]$natmi
+#         sca.scores[[context]]<-score.list[[context]]$sca
+#     }
     
-    all.scores <- list(natmi = natmi.scores, sca = sca.scores)
-    return(all.scores)
-}
+#     all.scores <- list(natmi = natmi.scores, sca = sca.scores)
+#     return(all.scores)
+# }
