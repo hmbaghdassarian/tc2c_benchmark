@@ -100,6 +100,17 @@ split.by.context<-function(sim, context_lab = 'Batch'){
     return(sim.bc)
 }
 
+score.communication<-function(sce_, ...){
+    liana_res<-liana_wrap(sce = sce_, verbose = F, ...)
+    liana_agg<-liana::liana_aggregate(liana_res, verbose = F,
+                                      aggregate_how = 'magnitude')[c('source', 'target', 'ligand.complex', 
+                                                                     'receptor.complex', 'aggregate_rank')]
+    colnames(liana_agg)<-c('source', 'target', 'ligand', 'receptor', 'score')
+    liana_agg['score']<-(1-liana_agg$score)
+    
+    return(liana_agg)
+}   
+
 # score.communication.sce<-function(sce, check_pos = T, ...){
 #     communication.scores<-liana_wrap(sce = sce, ...)
 
