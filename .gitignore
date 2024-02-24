@@ -1,6 +1,5 @@
 **/*.csv
 **/*.rds
-**/*.pdf
 **/*.ipynb_checkpoints
 **/__pycache__/
 **/*.RData
